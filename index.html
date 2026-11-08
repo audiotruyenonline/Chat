@@ -44,7 +44,6 @@
     <div id="authContainer" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/80 backdrop-blur-md">
         <div class="bg-white dark:bg-gray-800 w-full max-w-md rounded-3xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-700 transition-all p-6 md:p-8">
             
-            <!-- App Logo -->
             <div class="text-center mb-6">
                 <div class="w-16 h-16 bg-brand-600 rounded-2xl mx-auto flex items-center justify-center text-white text-3xl shadow-lg shadow-brand-500/30 mb-3">
                     <i class="fa-solid fa-comments"></i>
@@ -53,13 +52,11 @@
                 <p id="authSubtitle" class="text-xs text-gray-500 dark:text-gray-400 mt-1">Trò chuyện thời gian thực cùng mọi người</p>
             </div>
 
-            <!-- Error Notification Alert -->
             <div id="authAlert" class="hidden mb-4 p-3 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 text-xs rounded-xl flex items-center space-x-2">
                 <i class="fa-solid fa-circle-exclamation flex-shrink-0 text-sm"></i>
                 <span id="authAlertText">Lỗi khi thao tác!</span>
             </div>
 
-            <!-- Auth Form -->
             <form id="authForm" class="space-y-4">
                 <div id="displayNameGroup" class="hidden">
                     <label class="block text-xs font-semibold text-gray-600 dark:text-gray-300 mb-1">Tên hiển thị (Username)</label>
@@ -91,7 +88,6 @@
                 </button>
             </form>
 
-            <!-- Switch Tab Login/Register -->
             <div class="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
                 <span id="authSwitchPrompt">Chưa có tài khoản?</span>
                 <button type="button" id="authSwitchBtn" class="text-brand-600 dark:text-brand-400 font-semibold ml-1 hover:underline">
@@ -106,7 +102,6 @@
         
         <!-- SIDEBAR -->
         <aside id="sidebar" class="w-80 flex-shrink-0 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col transition-all duration-300 absolute md:relative z-20 h-full -translate-x-full md:translate-x-0">
-            <!-- Sidebar Header -->
             <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
                 <div class="flex items-center space-x-3">
                     <div class="w-10 h-10 rounded-full bg-brand-600 flex items-center justify-center text-white font-bold text-lg shadow-md">
@@ -130,10 +125,8 @@
                 </div>
             </div>
 
-            <!-- Chat Channel List -->
             <div class="flex-1 overflow-y-auto px-3 py-2 space-y-1">
                 <div class="text-xs font-semibold text-gray-400 uppercase tracking-wider px-3 py-2">Kênh Trực Tuyến</div>
-
                 <button class="w-full p-3 rounded-xl flex items-center space-x-3 bg-brand-50 dark:bg-gray-700/60 border border-brand-100 dark:border-gray-600 transition">
                     <div class="w-10 h-10 rounded-full bg-brand-600 text-white flex items-center justify-center font-bold text-lg flex-shrink-0">
                         <i class="fa-solid fa-earth-americas"></i>
@@ -145,7 +138,6 @@
                 </button>
             </div>
 
-            <!-- Current User Profile Footer -->
             <div class="p-3 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between bg-gray-50 dark:bg-gray-800/50">
                 <div class="flex items-center space-x-3 min-w-0">
                     <div id="currentUserAvatar" class="w-9 h-9 rounded-full bg-brand-500 text-white flex items-center justify-center font-bold text-sm flex-shrink-0">
@@ -164,8 +156,6 @@
 
         <!-- MAIN CHAT CONTAINER -->
         <main class="flex-1 flex flex-col h-full bg-gray-50 dark:bg-gray-900 relative overflow-hidden">
-            
-            <!-- Chat Header -->
             <header class="h-16 px-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur border-b border-gray-200 dark:border-gray-700 flex items-center justify-between z-10">
                 <div class="flex items-center space-x-3">
                     <button id="openSidebar" class="md:hidden p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg">
@@ -185,7 +175,7 @@
             <div id="messagesContainer" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
                 <div class="flex justify-center my-2">
                     <div class="bg-gray-200/70 dark:bg-gray-800/80 text-gray-500 dark:text-gray-400 text-xs px-3 py-1.5 rounded-full shadow-sm">
-                        🌐 Kết nối tới cộng đồng online. Tin nhắn sẽ tự động xuất hiện real-time.
+                        🌐 Kết nối tới cộng đồng online. Tin nhắn tự động đồng bộ.
                     </div>
                 </div>
             </div>
@@ -197,7 +187,6 @@
             <!-- Input Controls Area -->
             <div class="p-3 md:p-4 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 relative">
                 
-                <!-- Drawer Attachment Options Menu -->
                 <div id="attachDrawer" class="hidden absolute bottom-full left-4 mb-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-xl p-2 flex flex-col space-y-1 min-w-[160px] z-30 transition-all">
                     <button id="btnAttachImage" class="flex items-center space-x-3 px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-200 transition">
                         <i class="fa-solid fa-image text-green-500 w-5"></i>
@@ -213,7 +202,6 @@
                     </button>
                 </div>
 
-                <!-- Emoji Picker Panel -->
                 <div id="emojiPicker" class="hidden absolute bottom-full right-16 mb-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl shadow-xl p-3 grid grid-cols-6 gap-2 z-30 max-w-[240px]">
                     <span class="emoji-item cursor-pointer text-xl hover:scale-125 transition">😀</span>
                     <span class="emoji-item cursor-pointer text-xl hover:scale-125 transition">😂</span>
@@ -229,12 +217,10 @@
                     <span class="emoji-item cursor-pointer text-xl hover:scale-125 transition">🚀</span>
                 </div>
 
-                <!-- Hidden Input Elements -->
                 <input type="file" id="fileInputImage" accept="image/*" class="hidden">
                 <input type="file" id="fileInputVideo" accept="video/*" class="hidden">
                 <input type="file" id="fileInputDocument" accept="*/*" class="hidden">
 
-                <!-- Chat Form -->
                 <form id="chatForm" class="flex items-end space-x-2">
                     <button type="button" id="toggleAttachBtn" class="p-2.5 text-gray-500 hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-500 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition flex-shrink-0">
                         <i class="fa-solid fa-paperclip text-lg"></i>
@@ -281,10 +267,11 @@
             getFirestore, 
             collection, 
             addDoc, 
+            doc,
+            updateDoc,
             onSnapshot 
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Firebase Configuration Included directly
         const firebaseConfig = {
             apiKey: "AIzaSyDhq66ZZzNp9_-FnY7T-2gxNlrUDxeDPrU",
             authDomain: "truyen-b3470.firebaseapp.com",
@@ -295,12 +282,10 @@
             appId: "1:93210370757:web:320779fc250ee9ba2f46ac"
         };
 
-        // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // UI References
         const authContainer = document.getElementById('authContainer');
         const authForm = document.getElementById('authForm');
         const authTitle = document.getElementById('authTitle');
@@ -332,7 +317,6 @@
         let pendingAttachment = null;
         let unsubscribeMessages = null;
 
-        // Auth State Observer
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
             if (user) {
@@ -353,7 +337,6 @@
             }
         });
 
-        // Toggle Register / Login mode
         authSwitchBtn.addEventListener('click', () => {
             isRegisterMode = !isRegisterMode;
             authAlert.classList.add('hidden');
@@ -374,7 +357,6 @@
             }
         });
 
-        // Handle Auth Form Submission
         authForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             authAlert.classList.add('hidden');
@@ -397,7 +379,6 @@
             }
         });
 
-        // Logout
         logoutBtn.addEventListener('click', () => signOut(auth));
 
         function formatAuthError(code) {
@@ -411,10 +392,8 @@
             }
         }
 
-        // --- FIRESTORE REALTIME CHAT ENGINE ---
         function subscribeToMessages() {
             if (!currentUser) return;
-
             const messagesRef = collection(db, 'global_messages');
 
             unsubscribeMessages = onSnapshot(messagesRef, (snapshot) => {
@@ -430,7 +409,6 @@
             });
         }
 
-        // Send Message
         chatForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             if (!currentUser) return;
@@ -445,6 +423,7 @@
                 userEmail: currentUser.email,
                 text: text,
                 attachment: pendingAttachment ? pendingAttachment : null,
+                reactions: {},
                 createdAt: Date.now()
             };
 
@@ -461,7 +440,45 @@
             }
         });
 
-        // Render Messages in UI
+        // Hàm thả reaction icon vào tin nhắn
+        window.toggleReaction = async function(msgId, emoji, currentReactions = {}) {
+            if (!currentUser) return;
+            const userUid = currentUser.uid;
+            
+            let updatedReactions = { ...currentReactions };
+            if (!updatedReactions[emoji]) {
+                updatedReactions[emoji] = [];
+            }
+
+            const index = updatedReactions[emoji].indexOf(userUid);
+            if (index > -1) {
+                updatedReactions[emoji].splice(index, 1);
+                if (updatedReactions[emoji].length === 0) {
+                    delete updatedReactions[emoji];
+                }
+            } else {
+                updatedReactions[emoji].push(userUid);
+            }
+
+            try {
+                const msgRef = doc(db, 'global_messages', msgId);
+                await updateDoc(msgRef, { reactions: updatedReactions });
+            } catch (err) {
+                console.error("Lỗi thả icon:", err);
+            }
+        };
+
+        // Copy nội dung tin nhắn
+        window.copyMessageText = function(text, btnElement) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalHtml = btnElement.innerHTML;
+                btnElement.innerHTML = '<i class="fa-solid fa-check text-green-500"></i>';
+                setTimeout(() => {
+                    btnElement.innerHTML = originalHtml;
+                }, 1500);
+            });
+        };
+
         function renderMessages(messages) {
             messagesContainer.innerHTML = `
                 <div class="flex justify-center my-2">
@@ -474,7 +491,7 @@
             messages.forEach(msg => {
                 const isMe = currentUser && msg.uid === currentUser.uid;
                 const messageWrapper = document.createElement('div');
-                messageWrapper.className = `flex items-start space-x-3 ${isMe ? 'justify-end' : 'justify-start'}`;
+                messageWrapper.className = `flex items-start space-x-2 ${isMe ? 'justify-end' : 'justify-start'} group relative mb-4`;
 
                 const timeStr = new Date(msg.createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
@@ -483,13 +500,13 @@
                     const att = msg.attachment;
                     if (att.type === 'image') {
                         attachHtml = `
-                            <div class="overflow-hidden rounded-xl cursor-pointer max-w-xs hover:opacity-95 transition mb-1" onclick="window.openMediaModal('${att.data}', 'image')">
-                                <img src="${att.data}" class="w-full max-h-60 object-cover rounded-xl">
+                            <div class="overflow-hidden rounded-xl cursor-pointer max-w-sm hover:opacity-95 transition mb-1" onclick="window.openMediaModal('${att.data}', 'image')">
+                                <img src="${att.data}" class="w-full max-h-80 object-cover rounded-xl">
                             </div>`;
                     } else if (att.type === 'video') {
                         attachHtml = `
-                            <div class="overflow-hidden rounded-xl max-w-xs bg-black mb-1">
-                                <video src="${att.data}" controls class="w-full max-h-60 rounded-xl"></video>
+                            <div class="overflow-hidden rounded-xl max-w-sm bg-black mb-1">
+                                <video src="${att.data}" controls class="w-full max-h-80 rounded-xl"></video>
                             </div>`;
                     } else if (att.type === 'file') {
                         attachHtml = `
@@ -509,7 +526,44 @@
                 }
 
                 const { formattedText, linkPreviewHtml } = processLinksInText(msg.text || '');
-                const textHtml = msg.text ? `<div class="text-sm leading-relaxed break-words">${formattedText}</div>` : '';
+                
+                // Cấu hình hiển thị tin nhắn ĐẦY ĐỦ 100% không bị ẩn/cắt dòng
+                const textHtml = msg.text ? `<div class="text-sm leading-relaxed whitespace-pre-wrap break-words overflow-visible">${formattedText}</div>` : '';
+
+                // Hiển thị danh sách Reactions/Icon đã thả
+                let reactionsBadgeHtml = '';
+                if (msg.reactions && Object.keys(msg.reactions).length > 0) {
+                    reactionsBadgeHtml = '<div class="flex flex-wrap gap-1 mt-1.5">';
+                    for (const [emoji, uids] of Object.entries(msg.reactions)) {
+                        if (uids && uids.length > 0) {
+                            const hasReacted = currentUser && uids.includes(currentUser.uid);
+                            reactionsBadgeHtml += `
+                                <button onclick="window.toggleReaction('${msg.id}', '${emoji}', ${JSON.stringify(msg.reactions).replace(/"/g, '&quot;')})" 
+                                    class="inline-flex items-center space-x-1 text-xs px-2 py-0.5 rounded-full border transition ${hasReacted ? 'bg-brand-100 dark:bg-brand-900/50 border-brand-400 text-brand-600 dark:text-brand-300 font-bold' : 'bg-gray-100 dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300'}">
+                                    <span>${emoji}</span>
+                                    <span class="text-[10px]">${uids.length}</span>
+                                </button>
+                            `;
+                        }
+                    }
+                    reactionsBadgeHtml += '</div>';
+                }
+
+                // Thanh công cụ Action Bar (Copy + Thả Icon Quick Bar)
+                const encodedText = (msg.text || '').replace(/'/g, "\\'").replace(/"/g, "&quot;");
+                const reactionsJson = JSON.stringify(msg.reactions || {}).replace(/"/g, '&quot;');
+                
+                const actionBarHtml = `
+                    <div class="hidden group-hover:flex items-center space-x-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full px-2 py-1 shadow-md absolute -top-4 ${isMe ? 'right-12' : 'left-12'} z-20">
+                        <button onclick="window.toggleReaction('${msg.id}', '❤️', ${reactionsJson})" class="hover:scale-125 transition text-xs p-0.5">❤️</button>
+                        <button onclick="window.toggleReaction('${msg.id}', '👍', ${reactionsJson})" class="hover:scale-125 transition text-xs p-0.5">👍</button>
+                        <button onclick="window.toggleReaction('${msg.id}', '😂', ${reactionsJson})" class="hover:scale-125 transition text-xs p-0.5">😂</button>
+                        <button onclick="window.toggleReaction('${msg.id}', '🔥', ${reactionsJson})" class="hover:scale-125 transition text-xs p-0.5">🔥</button>
+                        <button onclick="window.toggleReaction('${msg.id}', '😮', ${reactionsJson})" class="hover:scale-125 transition text-xs p-0.5">😮</button>
+                        <button onclick="window.toggleReaction('${msg.id}', '😢', ${reactionsJson})" class="hover:scale-125 transition text-xs p-0.5">😢</button>
+                        ${msg.text ? `<button onclick="window.copyMessageText('${encodedText}', this)" class="text-gray-400 hover:text-brand-500 text-xs px-1 border-l border-gray-200 dark:border-gray-700 ml-1" title="Copy tin nhắn"><i class="fa-regular fa-copy"></i></button>` : ''}
+                    </div>
+                `;
 
                 const bubbleClasses = isMe 
                     ? 'bg-brand-600 text-white rounded-2xl rounded-tr-none shadow-sm' 
@@ -519,12 +573,14 @@
 
                 if (isMe) {
                     messageWrapper.innerHTML = `
-                        <div class="max-w-[85%] md:max-w-[65%] flex flex-col items-end">
-                            <div class="${bubbleClasses} p-3.5">
+                        ${actionBarHtml}
+                        <div class="max-w-[88%] md:max-w-[75%] flex flex-col items-end">
+                            <div class="${bubbleClasses} p-3.5 w-full">
                                 ${attachHtml}
                                 ${textHtml}
                                 ${linkPreviewHtml}
                             </div>
+                            ${reactionsBadgeHtml}
                             <span class="text-[10px] text-gray-400 mt-1">${timeStr}</span>
                         </div>
                         <div class="w-8 h-8 rounded-full bg-brand-700 text-white flex items-center justify-center font-bold text-xs flex-shrink-0 mt-1">
@@ -533,16 +589,18 @@
                     `;
                 } else {
                     messageWrapper.innerHTML = `
+                        ${actionBarHtml}
                         <div class="w-8 h-8 rounded-full bg-purple-600 text-white flex items-center justify-center font-bold text-xs flex-shrink-0 mt-1">
                             ${avatarChar}
                         </div>
-                        <div class="max-w-[85%] md:max-w-[65%]">
+                        <div class="max-w-[88%] md:max-w-[75%]">
                             <span class="text-[11px] font-semibold text-gray-500 dark:text-gray-400 ml-1 mb-0.5 block">${msg.userName || 'Ẩn danh'}</span>
-                            <div class="${bubbleClasses} p-3.5">
+                            <div class="${bubbleClasses} p-3.5 w-full">
                                 ${attachHtml}
                                 ${textHtml}
                                 ${linkPreviewHtml}
                             </div>
+                            ${reactionsBadgeHtml}
                             <span class="text-[10px] text-gray-400 mt-1 block">${timeStr}</span>
                         </div>
                     `;
@@ -554,7 +612,6 @@
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
-        // File Selection Handlers
         document.getElementById('btnAttachImage').onclick = () => fileInputImage.click();
         document.getElementById('btnAttachVideo').onclick = () => fileInputVideo.click();
         document.getElementById('btnAttachFile').onclick = () => fileInputDocument.click();
@@ -611,7 +668,6 @@
             };
         }
 
-        // Helper Functions
         function formatBytes(bytes) {
             if (bytes === 0) return '0 B';
             const k = 1024;
@@ -653,7 +709,6 @@
             return { formattedText, linkPreviewHtml };
         }
 
-        // Lightbox Modal
         window.openMediaModal = function(url, type) {
             const lb = document.getElementById('lightbox');
             const content = document.getElementById('lightboxContent');
