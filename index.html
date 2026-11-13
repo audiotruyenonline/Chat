@@ -166,7 +166,7 @@
                     </div>
                     <div>
                         <h2 class="font-bold text-sm md:text-base text-gray-900 dark:text-white leading-tight">Phòng Trò Chuyện Chung (Global)</h2>
-                        <span class="text-xs text-green-500 font-medium">Đồng bộ Firebase Realtime</span>
+                        <span class="text-xs text-green-500 font-medium">Đồng bộ Firebase Realtime + Cache</span>
                     </div>
                 </div>
             </header>
@@ -264,12 +264,14 @@
             onAuthStateChanged 
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { 
-            getFirestore, 
             collection, 
             addDoc, 
             doc,
             updateDoc,
-            onSnapshot 
+            onSnapshot,
+            initializeFirestore,
+            persistentLocalCache,
+            persistentMultipleTabManager 
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -284,7 +286,11 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const db = getFirestore(app);
+        
+        // Kích hoạt bộ nhớ đệm Offline/Local Cache giúp load tin nhắn tức thì (0s)
+        const db = initializeFirestore(app, {
+            localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+        });
 
         const authContainer = document.getElementById('authContainer');
         const authForm = document.getElementById('authForm');
@@ -316,6 +322,18 @@
         let currentUser = null;
         let pendingAttachment = null;
         let unsubscribeMessages = null;
+        let latestMessagesCache = [];
+
+        // Quản lý danh sách tin nhắn bị ẩn riêng trên thiết bị này (LocalStorage)
+        let hiddenMessageIds = JSON.parse(localStorage.getItem('nexus_hidden_msgs') || '[]');
+
+        window.hideMessageLocally = function(msgId) {
+            if (!hiddenMessageIds.includes(msgId)) {
+                hiddenMessageIds.push(msgId);
+                localStorage.setItem('nexus_hidden_msgs', JSON.stringify(hiddenMessageIds));
+                renderMessages(latestMessagesCache);
+            }
+        };
 
         onAuthStateChanged(auth, (user) => {
             currentUser = user;
@@ -403,6 +421,7 @@
                 });
 
                 docs.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+                latestMessagesCache = docs;
                 renderMessages(docs);
             }, (error) => {
                 console.error("Lỗi Firestore Snapshot:", error);
@@ -440,7 +459,6 @@
             }
         });
 
-        // Hàm thả reaction icon vào tin nhắn
         window.toggleReaction = async function(msgId, emoji, currentReactions = {}) {
             if (!currentUser) return;
             const userUid = currentUser.uid;
@@ -468,7 +486,6 @@
             }
         };
 
-        // Copy nội dung tin nhắn
         window.copyMessageText = function(text, btnElement) {
             navigator.clipboard.writeText(text).then(() => {
                 const originalHtml = btnElement.innerHTML;
@@ -480,6 +497,9 @@
         };
 
         function renderMessages(messages) {
+            // Lọc bỏ những tin nhắn mà người dùng đã bấm ẩn ở thiết bị này
+            const visibleMessages = messages.filter(msg => !hiddenMessageIds.includes(msg.id));
+
             messagesContainer.innerHTML = `
                 <div class="flex justify-center my-2">
                     <div class="bg-gray-200/70 dark:bg-gray-800/80 text-gray-500 dark:text-gray-400 text-xs px-3 py-1.5 rounded-full shadow-sm">
@@ -488,7 +508,7 @@
                 </div>
             `;
 
-            messages.forEach(msg => {
+            visibleMessages.forEach(msg => {
                 const isMe = currentUser && msg.uid === currentUser.uid;
                 const messageWrapper = document.createElement('div');
                 messageWrapper.className = `flex items-start space-x-2 ${isMe ? 'justify-end' : 'justify-start'} group relative mb-4`;
@@ -526,11 +546,8 @@
                 }
 
                 const { formattedText, linkPreviewHtml } = processLinksInText(msg.text || '');
-                
-                // Cấu hình hiển thị tin nhắn ĐẦY ĐỦ 100% không bị ẩn/cắt dòng
                 const textHtml = msg.text ? `<div class="text-sm leading-relaxed whitespace-pre-wrap break-words overflow-visible">${formattedText}</div>` : '';
 
-                // Hiển thị danh sách Reactions/Icon đã thả
                 let reactionsBadgeHtml = '';
                 if (msg.reactions && Object.keys(msg.reactions).length > 0) {
                     reactionsBadgeHtml = '<div class="flex flex-wrap gap-1 mt-1.5">';
@@ -549,19 +566,20 @@
                     reactionsBadgeHtml += '</div>';
                 }
 
-                // Thanh công cụ Action Bar (Copy + Thả Icon Quick Bar)
                 const encodedText = (msg.text || '').replace(/'/g, "\\'").replace(/"/g, "&quot;");
                 const reactionsJson = JSON.stringify(msg.reactions || {}).replace(/"/g, '&quot;');
                 
+                // Thanh công cụ Action Bar (Reactions + Copy + Ẩn tin nhắn)
                 const actionBarHtml = `
                     <div class="hidden group-hover:flex items-center space-x-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full px-2 py-1 shadow-md absolute -top-4 ${isMe ? 'right-12' : 'left-12'} z-20">
-                        <button onclick="window.toggleReaction('${msg.id}', '❤️', ${reactionsJson})" class="hover:scale-125 transition text-xs p-0.5">❤️</button>
-                        <button onclick="window.toggleReaction('${msg.id}', '👍', ${reactionsJson})" class="hover:scale-125 transition text-xs p-0.5">👍</button>
-                        <button onclick="window.toggleReaction('${msg.id}', '😂', ${reactionsJson})" class="hover:scale-125 transition text-xs p-0.5">😂</button>
-                        <button onclick="window.toggleReaction('${msg.id}', '🔥', ${reactionsJson})" class="hover:scale-125 transition text-xs p-0.5">🔥</button>
-                        <button onclick="window.toggleReaction('${msg.id}', '😮', ${reactionsJson})" class="hover:scale-125 transition text-xs p-0.5">😮</button>
-                        <button onclick="window.toggleReaction('${msg.id}', '😢', ${reactionsJson})" class="hover:scale-125 transition text-xs p-0.5">😢</button>
-                        ${msg.text ? `<button onclick="window.copyMessageText('${encodedText}', this)" class="text-gray-400 hover:text-brand-500 text-xs px-1 border-l border-gray-200 dark:border-gray-700 ml-1" title="Copy tin nhắn"><i class="fa-regular fa-copy"></i></button>` : ''}
+                        <button onclick="window.toggleReaction('${msg.id}', '❤️', ${reactionsJson})" class="hover:scale-125 transition text-xs p-0.5" title="Thả tim">❤️</button>
+                        <button onclick="window.toggleReaction('${msg.id}', '👍', ${reactionsJson})" class="hover:scale-125 transition text-xs p-0.5" title="Thích">👍</button>
+                        <button onclick="window.toggleReaction('${msg.id}', '😂', ${reactionsJson})" class="hover:scale-125 transition text-xs p-0.5" title="Haha">😂</button>
+                        <button onclick="window.toggleReaction('${msg.id}', '🔥', ${reactionsJson})" class="hover:scale-125 transition text-xs p-0.5" title="Lửa">🔥</button>
+                        <button onclick="window.toggleReaction('${msg.id}', '😮', ${reactionsJson})" class="hover:scale-125 transition text-xs p-0.5" title="Wow">😮</button>
+                        <button onclick="window.toggleReaction('${msg.id}', '😢', ${reactionsJson})" class="hover:scale-125 transition text-xs p-0.5" title="Buồn">😢</button>
+                        ${msg.text ? `<button onclick="window.copyMessageText('${encodedText}', this)" class="text-gray-400 hover:text-brand-500 text-xs px-1 border-l border-gray-200 dark:border-gray-700 ml-0.5" title="Copy tin nhắn"><i class="fa-regular fa-copy"></i></button>` : ''}
+                        <button onclick="window.hideMessageLocally('${msg.id}')" class="text-gray-400 hover:text-red-500 text-xs px-1 border-l border-gray-200 dark:border-gray-700 ml-0.5" title="Ẩn tin nhắn này ở máy bạn"><i class="fa-solid fa-eye-slash"></i></button>
                     </div>
                 `;
 
@@ -609,7 +627,10 @@
                 messagesContainer.appendChild(messageWrapper);
             });
 
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            // Tự động nhảy thẳng xuống tin nhắn mới nhất dưới cùng ngay lập tức
+            requestAnimationFrame(() => {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            });
         }
 
         document.getElementById('btnAttachImage').onclick = () => fileInputImage.click();
