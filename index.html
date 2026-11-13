@@ -287,7 +287,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         
-        // Kích hoạt bộ nhớ đệm Offline/Local Cache giúp load tin nhắn tức thì (0s)
+        // Bộ nhớ đệm Offline/Local Cache giúp load tin nhắn tức thì (0s)
         const db = initializeFirestore(app, {
             localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
         });
@@ -323,16 +323,20 @@
         let pendingAttachment = null;
         let unsubscribeMessages = null;
         let latestMessagesCache = [];
+        let isFirstLoad = true;
 
-        // Quản lý danh sách tin nhắn bị ẩn riêng trên thiết bị này (LocalStorage)
-        let hiddenMessageIds = JSON.parse(localStorage.getItem('nexus_hidden_msgs') || '[]');
+        // Quản lý danh sách tin nhắn bị thu gọn/ẩn tạm thời trên thiết bị này
+        let collapsedMessageIds = JSON.parse(localStorage.getItem('nexus_collapsed_msgs') || '[]');
 
-        window.hideMessageLocally = function(msgId) {
-            if (!hiddenMessageIds.includes(msgId)) {
-                hiddenMessageIds.push(msgId);
-                localStorage.setItem('nexus_hidden_msgs', JSON.stringify(hiddenMessageIds));
-                renderMessages(latestMessagesCache);
+        window.toggleCollapseMessage = function(msgId) {
+            const index = collapsedMessageIds.indexOf(msgId);
+            if (index > -1) {
+                collapsedMessageIds.splice(index, 1); // Bấm để hiện lại
+            } else {
+                collapsedMessageIds.push(msgId); // Bấm để thu gọn/ẩn
             }
+            localStorage.setItem('nexus_collapsed_msgs', JSON.stringify(collapsedMessageIds));
+            renderMessages(latestMessagesCache, false);
         };
 
         onAuthStateChanged(auth, (user) => {
@@ -346,6 +350,7 @@
                 currentUserEmail.textContent = user.email || 'Ẩn danh';
                 currentUserAvatar.textContent = name.charAt(0).toUpperCase();
 
+                isFirstLoad = true;
                 subscribeToMessages();
             } else {
                 authContainer.classList.remove('hidden');
@@ -422,7 +427,8 @@
 
                 docs.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
                 latestMessagesCache = docs;
-                renderMessages(docs);
+                
+                renderMessages(docs, true);
             }, (error) => {
                 console.error("Lỗi Firestore Snapshot:", error);
             });
@@ -496,9 +502,9 @@
             });
         };
 
-        function renderMessages(messages) {
-            // Lọc bỏ những tin nhắn mà người dùng đã bấm ẩn ở thiết bị này
-            const visibleMessages = messages.filter(msg => !hiddenMessageIds.includes(msg.id));
+        function renderMessages(messages, shouldScrollToBottom = true) {
+            // Lưu lại vị trí cuộn hiện tại nếu không phải lúc load đầu hoặc gửi tin mới
+            const prevScrollTop = messagesContainer.scrollTop;
 
             messagesContainer.innerHTML = `
                 <div class="flex justify-center my-2">
@@ -508,13 +514,54 @@
                 </div>
             `;
 
-            visibleMessages.forEach(msg => {
+            messages.forEach(msg => {
                 const isMe = currentUser && msg.uid === currentUser.uid;
+                const isCollapsed = collapsedMessageIds.includes(msg.id);
                 const messageWrapper = document.createElement('div');
                 messageWrapper.className = `flex items-start space-x-2 ${isMe ? 'justify-end' : 'justify-start'} group relative mb-4`;
 
                 const timeStr = new Date(msg.createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                const avatarChar = (msg.userName || 'U').charAt(0).toUpperCase();
 
+                // NẾU TIN NHẮN ĐANG BỊ ẨN/THU GỌN -> HIỂN THỊ THANH NHỎ GỌN ĐỂ BẤM HIỆN LẠI
+                if (isCollapsed) {
+                    const collapsedHtml = `
+                        <div onclick="window.toggleCollapseMessage('${msg.id}')" 
+                             class="cursor-pointer bg-gray-200/80 dark:bg-gray-800/90 hover:bg-gray-300/80 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 border border-dashed border-gray-400/50 dark:border-gray-600 px-3.5 py-2 rounded-2xl text-xs flex items-center space-x-2 transition shadow-sm"
+                             title="Bấm để mở xem lại nội dung tin nhắn này">
+                            <i class="fa-solid fa-eye text-brand-500"></i>
+                            <span>Tin nhắn của <b>${msg.userName || 'Ẩn danh'}</b> đã được thu gọn</span>
+                            <span class="text-brand-600 dark:text-brand-400 font-semibold underline ml-1">Hiện lại</span>
+                        </div>
+                    `;
+
+                    if (isMe) {
+                        messageWrapper.innerHTML = `
+                            <div class="flex flex-col items-end">
+                                ${collapsedHtml}
+                                <span class="text-[10px] text-gray-400 mt-1">${timeStr}</span>
+                            </div>
+                            <div class="w-8 h-8 rounded-full bg-brand-700/60 text-white flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
+                                ${avatarChar}
+                            </div>
+                        `;
+                    } else {
+                        messageWrapper.innerHTML = `
+                            <div class="w-8 h-8 rounded-full bg-purple-600/60 text-white flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
+                                ${avatarChar}
+                            </div>
+                            <div>
+                                ${collapsedHtml}
+                                <span class="text-[10px] text-gray-400 mt-1 block">${timeStr}</span>
+                            </div>
+                        `;
+                    }
+
+                    messagesContainer.appendChild(messageWrapper);
+                    return; // Bỏ qua phần render nội dung dài bên dưới
+                }
+
+                // NẾU TIN NHẮN ĐANG MỞ BÌNH THƯỜNG -> HIỂN THỊ FULL 100% NỘI DUNG
                 let attachHtml = '';
                 if (msg.attachment) {
                     const att = msg.attachment;
@@ -569,7 +616,7 @@
                 const encodedText = (msg.text || '').replace(/'/g, "\\'").replace(/"/g, "&quot;");
                 const reactionsJson = JSON.stringify(msg.reactions || {}).replace(/"/g, '&quot;');
                 
-                // Thanh công cụ Action Bar (Reactions + Copy + Ẩn tin nhắn)
+                // Thanh công cụ Action Bar (Reactions + Copy + Nút Thu gọn/Ẩn)
                 const actionBarHtml = `
                     <div class="hidden group-hover:flex items-center space-x-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full px-2 py-1 shadow-md absolute -top-4 ${isMe ? 'right-12' : 'left-12'} z-20">
                         <button onclick="window.toggleReaction('${msg.id}', '❤️', ${reactionsJson})" class="hover:scale-125 transition text-xs p-0.5" title="Thả tim">❤️</button>
@@ -579,15 +626,13 @@
                         <button onclick="window.toggleReaction('${msg.id}', '😮', ${reactionsJson})" class="hover:scale-125 transition text-xs p-0.5" title="Wow">😮</button>
                         <button onclick="window.toggleReaction('${msg.id}', '😢', ${reactionsJson})" class="hover:scale-125 transition text-xs p-0.5" title="Buồn">😢</button>
                         ${msg.text ? `<button onclick="window.copyMessageText('${encodedText}', this)" class="text-gray-400 hover:text-brand-500 text-xs px-1 border-l border-gray-200 dark:border-gray-700 ml-0.5" title="Copy tin nhắn"><i class="fa-regular fa-copy"></i></button>` : ''}
-                        <button onclick="window.hideMessageLocally('${msg.id}')" class="text-gray-400 hover:text-red-500 text-xs px-1 border-l border-gray-200 dark:border-gray-700 ml-0.5" title="Ẩn tin nhắn này ở máy bạn"><i class="fa-solid fa-eye-slash"></i></button>
+                        <button onclick="window.toggleCollapseMessage('${msg.id}')" class="text-gray-400 hover:text-amber-500 text-xs px-1 border-l border-gray-200 dark:border-gray-700 ml-0.5" title="Thu gọn / Ẩn tạm tin nhắn này"><i class="fa-solid fa-eye-slash"></i></button>
                     </div>
                 `;
 
                 const bubbleClasses = isMe 
                     ? 'bg-brand-600 text-white rounded-2xl rounded-tr-none shadow-sm' 
                     : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 rounded-2xl rounded-tl-none shadow-sm border border-gray-100 dark:border-gray-700/60';
-
-                const avatarChar = (msg.userName || 'U').charAt(0).toUpperCase();
 
                 if (isMe) {
                     messageWrapper.innerHTML = `
@@ -627,10 +672,14 @@
                 messagesContainer.appendChild(messageWrapper);
             });
 
-            // Tự động nhảy thẳng xuống tin nhắn mới nhất dưới cùng ngay lập tức
-            requestAnimationFrame(() => {
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            });
+            if (shouldScrollToBottom || isFirstLoad) {
+                isFirstLoad = false;
+                requestAnimationFrame(() => {
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                });
+            } else {
+                messagesContainer.scrollTop = prevScrollTop;
+            }
         }
 
         document.getElementById('btnAttachImage').onclick = () => fileInputImage.click();
